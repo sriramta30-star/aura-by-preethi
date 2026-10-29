@@ -16,7 +16,10 @@ export async function POST(request:Request){
   const auth=await createServerSupabase();const {data:{user}}=await auth.auth.getUser();if(!user)return NextResponse.json({error:"Please sign in before checkout."},{status:401});
   const body=await request.json() as {items?:CartItem[];shippingAddress?:Address};
   const a=body.shippingAddress;
-  if(!Array.isArray(body.items)||!body.items.length||body.items.length>20||!a||![[a.name,120],[a.email,254],[a.phone,20],[a.line1,240],[a.city,100],[a.state,100],[a.pincode,12]].every(([value,max])=>typeof value==="string"&&value.trim().length>0&&value.trim().length<=Number(max))||!/^\S+@\S+\.\S+$/.test(a?.email||""))return NextResponse.json({error:"Enter valid delivery details and review your bag."},{status:400});
+  const bounded=(value:unknown,max:number)=>typeof value==="string"&&value.trim().length>0&&value.trim().length<=max;
+  if(!Array.isArray(body.items)||!body.items.length||body.items.length>20||!a||
+    !bounded(a.name,120)||!bounded(a.email,254)||!bounded(a.phone,20)||!bounded(a.line1,240)||!bounded(a.city,100)||!bounded(a.state,100)||!bounded(a.pincode,12)||
+    !/^\\S+@\\S+\\.\\S+$/.test(a?.email||""))return NextResponse.json({error:"Enter valid delivery details and review your bag."},{status:400});
   if(body.items.some(x=>!x||typeof x.productId!=="string"||x.productId.length>100||!Number.isInteger(x.quantity)||x.quantity<1||x.quantity>20|| (x.size!==undefined&&(typeof x.size!=="string"||x.size.length>20))||(x.color!==undefined&&(typeof x.color!=="string"||x.color.length>40))))return NextResponse.json({error:"A cart item or quantity is invalid."},{status:400});
   db=serverDb();const ids=[...new Set(body.items.map(x=>x.productId))];
   const {data:products,error:productError}=await db.from("products").select("id,name,price,stock,active").in("id",ids).eq("active",true);
