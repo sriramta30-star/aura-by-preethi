@@ -2,16 +2,16 @@
 import Link from "next/link";
 import Script from "next/script";
 import {useMemo,useState} from "react";
-import {demoProducts,formatINR} from "@/lib/products";
+import {formatINR} from "@/lib/products";
 import {useStore} from "@/components/store-provider";
 
 declare global { interface Window { Razorpay?: new (options:Record<string,unknown>)=>{open:()=>void}; } }
 type Address={name:string;email:string;phone:string;line1:string;city:string;state:string;pincode:string};
 export default function CartPage(){
- const {cart,loaded,remove,quantity,clear}=useStore();
+ const {cart,loaded,remove,quantity,clear,products}=useStore();
  const [address,setAddress]=useState<Address>({name:"",email:"",phone:"",line1:"",city:"",state:"",pincode:""});
  const [message,setMessage]=useState("");const [busy,setBusy]=useState(false);
- const lines=useMemo(()=>cart.map(line=>({line,product:demoProducts.find(p=>p.id===line.productId)})).filter((v):v is {line:typeof cart[number];product:(typeof demoProducts)[number]}=>Boolean(v.product)),[cart]);
+ const lines=useMemo(()=>cart.map(line=>({line,product:products.find(p=>p.id===line.productId)})).filter((v):v is {line:typeof cart[number];product:(typeof demoProducts)[number]}=>Boolean(v.product)),[cart]);
  const subtotal=lines.reduce((n,x)=>n+x.product.price*x.line.quantity,0);const shipping=subtotal===0||subtotal>=1999?0:99;
  function set<K extends keyof Address>(key:K,value:Address[K]){setAddress(v=>({...v,[key]:value}));}
  async function pay(event:React.FormEvent<HTMLFormElement>){
