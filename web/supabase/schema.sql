@@ -53,8 +53,8 @@ alter table public.enquiries enable row level security;
 
 drop policy if exists "profile self read" on public.profiles;
 create policy "profile self read" on public.profiles for select to authenticated using(auth.uid()=id);
+-- Customer updates to the profile row are disabled so a user cannot change their own role to admin.
 drop policy if exists "profile self update" on public.profiles;
-create policy "profile self update" on public.profiles for update to authenticated using(auth.uid()=id) with check(auth.uid()=id);
 drop policy if exists "public read active products" on public.products;
 create policy "public read active products" on public.products for select to anon,authenticated using(active=true);
 drop policy if exists "admin manages products" on public.products;
@@ -66,26 +66,70 @@ create policy "customer reads own orders" on public.orders for select to authent
 -- No customer inserts/updates for orders. Trusted API routes create and update them with service credentials.
 -- Enquiries are received through a server-side API with input validation; no table policy for public inserts.
 
+create or replace function public.reserve_aura_stock(p_items jsonb)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare v_item jsonb;
+begin
+ if jsonb_typeof(p_items) <> 'array' then raise exception 'invalid item list'; end if;
+ for v_item in select value from jsonb_array_elements(p_items) loop
+   if coalesce((v_item->>'quantity')::integer,0) < 1 then raise exception 'invalid quantity'; end if;
+   update public.products set stock=stock-(v_item->>'quantity')::integer,updated_at=now()
+   where id=v_item->>'product_id' and active=true and stock >= (v_item->>'quantity')::integer;
+   if not found then raise exception 'insufficient stock'; end if;
+ end loop;
+ return true;
+end;$$;
+
+create or replace function public.release_aura_stock(p_items jsonb)
+returns boolean language plpgsql security definer set search_path=public as $$
+declare v_item jsonb;
+begin
+ if jsonb_typeof(p_items) <> 'array' then raise exception 'invalid item list'; end if;
+ for v_item in select value from jsonb_array_elements(p_items) loop
+   update public.products set stock=stock+(v_item->>'quantity')::integer,updated_at=now()
+   where id=v_item->>'product_id';
+ end loop;
+ return true;
+end;$$;
+
 create or replace function public.complete_aura_order(p_razorpay_order_id text,p_razorpay_payment_id text)
 returns uuid language plpgsql security definer set search_path=public as $$
-declare v_order public.orders%rowtype; v_item jsonb; v_updated uuid;
+declare v_order public.orders%rowtype; v_updated uuid;
 begin
  select * into v_order from public.orders where razorpay_order_id=p_razorpay_order_id for update;
  if not found then raise exception 'order not found'; end if;
  if v_order.status='paid' then return v_order.id; end if;
  if v_order.status <> 'pending' then raise exception 'order is not pending'; end if;
- for v_item in select value from jsonb_array_elements(v_order.items) loop
-   update public.products set stock=stock-(v_item->>'quantity')::integer,updated_at=now()
-   where id=v_item->>'product_id' and active=true and stock >= (v_item->>'quantity')::integer;
-   if not found then raise exception 'not enough stock to finalise order'; end if;
- end loop;
  update public.orders set status='paid',razorpay_payment_id=p_razorpay_payment_id,paid_at=now(),updated_at=now()
  where id=v_order.id and status='pending' returning id into v_updated;
  if v_updated is null then raise exception 'order status update failed'; end if;
  return v_updated;
 end;$$;
+
+create or replace function public.cancel_aura_order(p_order_id uuid)
+returns uuid language plpgsql security definer set search_path=public as $$
+declare v_order public.orders%rowtype; v_item jsonb; v_updated uuid;
+begin
+ select * into v_order from public.orders where id=p_order_id for update;
+ if not found then raise exception 'order not found'; end if;
+ if v_order.status='cancelled' then return v_order.id; end if;
+ if v_order.status <> 'pending' then raise exception 'only unpaid pending orders may be cancelled automatically'; end if;
+ for v_item in select value from jsonb_array_elements(v_order.items) loop
+   update public.products set stock=stock+(v_item->>'quantity')::integer,updated_at=now()
+   where id=v_item->>'product_id';
+ end loop;
+ update public.orders set status='cancelled',updated_at=now() where id=v_order.id and status='pending' returning id into v_updated;
+ return v_updated;
+end;$$;
+
+revoke all on function public.reserve_aura_stock(jsonb) from public,anon,authenticated;
+revoke all on function public.release_aura_stock(jsonb) from public,anon,authenticated;
 revoke all on function public.complete_aura_order(text,text) from public,anon,authenticated;
+revoke all on function public.cancel_aura_order(uuid) from public,anon,authenticated;
+grant execute on function public.reserve_aura_stock(jsonb) to service_role;
+grant execute on function public.release_aura_stock(jsonb) to service_role;
 grant execute on function public.complete_aura_order(text,text) to service_role;
+grant execute on function public.cancel_aura_order(uuid) to service_role;
 
 insert into public.products(id,slug,name,category,price,compare_at,description,fabric,colors,sizes,stock,image,badge,active) values
 ('saree-tissue-001','tissue-silk-saree','Tissue Silk Saree','Sarees',2499,2999,'A rich tissue silk drape with a refined festive finish for celebrations and special evenings.','Tissue silk blend',array['Maroon','Rose','Gold'],array[]::text[],12,'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=85','Bestseller',true),
