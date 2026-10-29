@@ -44,8 +44,8 @@ function QuickView({product,onClose}:{product:Product;onClose:()=>void}){
 }
 
 function CartDrawer({onClose}:{onClose:()=>void}){
- const {cart,remove,quantity,cartCount}=useStore();
- const lines=cart.map(line=>({line,product:demoProducts.find(p=>p.id===line.productId)})).filter((x):x is {line:typeof cart[number];product:Product}=>Boolean(x.product));
+ const {cart,remove,quantity,cartCount,products}=useStore();
+ const lines=cart.map(line=>({line,product:products.find(p=>p.id===line.productId)})).filter((x):x is {line:typeof cart[number];product:Product}=>Boolean(x.product));
  const total=lines.reduce((n,x)=>n+x.product.price*x.line.quantity,0);
  return <div className="drawer-shade" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
   <aside className="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag">
@@ -64,15 +64,15 @@ export default function HomePage(){
  const [sort,setSort]=useState("featured");
  const [quick,setQuick]=useState<Product|null>(null);
  const [drawer,setDrawer]=useState(false);
- const {cartCount,wishlist}=useStore();
+ const {cartCount,wishlist,products}=useStore();
  const filtered=useMemo(()=>{
   const q=query.trim().toLowerCase();
-  const found=demoProducts.filter(p=>(category==="All styles"||p.category===category)&&`${p.name} ${p.category} ${p.fabric} ${p.description}`.toLowerCase().includes(q));
+  const found=products.filter(p=>(category==="All styles"||p.category===category)&&`${p.name} ${p.category} ${p.fabric} ${p.description}`.toLowerCase().includes(q));
   if(sort==="low")found.sort((a,b)=>a.price-b.price);
   if(sort==="high")found.sort((a,b)=>b.price-a.price);
   if(sort==="name")found.sort((a,b)=>a.name.localeCompare(b.name));
   return found;
- },[query,category,sort]);
+ },[query,category,sort,products]);
  useEffect(()=>{
   const els=document.querySelectorAll(".reveal");
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){els.forEach(el=>el.classList.add("visible"));return}
