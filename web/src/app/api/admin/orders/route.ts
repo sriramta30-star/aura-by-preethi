@@ -24,9 +24,14 @@ export async function PATCH(request:Request){
  const body=await request.json();if(typeof body.id!=="string"||!body.id||!allowed.includes(body.status))return NextResponse.json({error:"Order id or status is invalid."},{status:400});
  const {data:existing,error:readError}=await g.db.from("orders").select("status").eq("id",body.id).maybeSingle();
  if(readError||!existing)return NextResponse.json({error:"Order not found."},{status:404});
- if(existing.status==="pending"&&body.status!=="pending"&&body.status!=="cancelled"&&body.status!=="paid")return NextResponse.json({error:"A pending order must be paid or cancelled first."},{status:409});
- if(existing.status==="pending"&&body.status==="paid")return NextResponse.json({error:"Order payment status can only be set by verified payment confirmation."},{status:409});
- const {error}=await g.db.from("orders").update({status:body.status,updated_at:new Date().toISOString()}).eq("id",body.id);
+ const transitions:Record<string,string[]>={pending:["cancelled"],paid:["processing"],processing:["shipped"],shipped:["delivered"],delivered:[],cancelled:[],refunded:[]};
+ if(!transitions[existing.status]?.includes(body.status))return NextResponse.json({error:`Invalid order transition: ${existing.status} to ${body.status}.`},{status:409});
+ if(existing.status==="pending"&&body.status==="cancelled"){
+   const {data,error}=await g.db.rpc("cancel_aura_order",{p_order_id:body.id});
+   if(error||!data)return NextResponse.json({error:"Pending order could not be cancelled or stock released."},{status:409});
+   return NextResponse.json({ok:true});
+ }
+ const {error}=await g.db.from("orders").update({status:body.status,updated_at:new Date().toISOString()}).eq("id",body.id).eq("status",existing.status);
  if(error)return NextResponse.json({error:"Order status couldn't be updated."},{status:400});
  return NextResponse.json({ok:true});
  }catch{return NextResponse.json({error:"Order status couldn't be updated."},{status:503});}
