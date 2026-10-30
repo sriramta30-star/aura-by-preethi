@@ -1,6 +1,8 @@
 import type {MetadataRoute} from "next";
 import {demoProducts} from "@/lib/products";
 export default function sitemap():MetadataRoute.Sitemap{
- const site=process.env.NEXT_PUBLIC_SITE_URL||"https://example.invalid";
- return ["","/#shop","/made-to-stitch","/login","/cart","/wishlist",...demoProducts.map(p=>"/products/"+p.slug)].map(path=>({url:site+path,lastModified:new Date(),changeFrequency:"weekly" as const,priority:path===""?1:.7}));
+ const site=process.env.NEXT_PUBLIC_SITE_URL;
+ if(!site)return [];
+ const paths=["","/made-to-stitch",...demoProducts.map(p=>"/products/"+p.slug)];
+ return paths.map(path=>({url:site.replace(/\/$/,"")+path,lastModified:new Date(),changeFrequency:"weekly" as const,priority:path===""?1:.7}));
 }
