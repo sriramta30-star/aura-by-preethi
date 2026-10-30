@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {useState} from "react";
 import {useRouter,useSearchParams} from "next/navigation";
-import {createBrowserSupabase} from "@/lib/supabase";
+import {createBrowserSupabase} from "@/lib/supabase-browser";
 
 export default function LoginPage(){
  const [mode,setMode]=useState<"signin"|"signup">("signin"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[message,setMessage]=useState(""),[busy,setBusy]=useState(false);
