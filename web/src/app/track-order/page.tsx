@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
-import {createServerSupabase} from "@/lib/supabase";
+import {createServerSupabase} from "@/lib/supabase-server";
 export const dynamic="force-dynamic";
 export default async function TrackOrderPage(){
  if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)return <main className="page-shell"><span className="micro">CUSTOMER CARE</span><h1 className="page-title">Track your order</h1><p className="page-lead">Order tracking activates after the customer account and order database are configured.</p><Link className="text-link" href="/login">Sign in ↗</Link></main>;
