@@ -17,7 +17,7 @@ export default function RootLayout({children}:{children:React.ReactNode}){
  <div className="announcement"><span>Complimentary shipping on orders above ₹1,999</span><span className="announcement-links">Shipping across India · Help & support</span></div>
  <header className="site-header"><div className="header-main">
  <Link className="header-search" href="/#shop" aria-label="Browse and search collections">⌕ <span>Search sarees, blouses, collections...</span></Link>
- <Link href="/" className="brand"><img src="/aura-logo.svg" alt="Aura by Preethi"/><small>Curated specially for you</small></Link>
+ <Link href="/" className="brand"><img src="/aura-user-logo.webp" alt="Aura by Preethi, curated specially for you"/></Link>
  <nav className="header-actions"><Link href="/login"><span>♙</span><small>Account</small></Link><Link href="/wishlist"><span>♡</span><small>Wishlist</small></Link><Link href="/cart"><span>♧</span><small>Bag</small></Link></nav>
  </div><nav className="main-nav" aria-label="Main navigation"><Link href="/">Home</Link><Link href="/#shop">Sarees</Link><Link href="/#shop?category=blouses">Ready-made blouses</Link><Link href="/made-to-stitch">Made-to-stitch</Link><Link href="/#shop">New arrivals</Link><Link href="/#shop">Collections</Link><Link href="/#story">Our story</Link><Link href="#footer">Contact</Link></nav></header>
  <StoreProvider>{children}</StoreProvider>
