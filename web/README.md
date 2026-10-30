@@ -1,22 +1,24 @@
 # Aura by Preethi | Full-stack fashion storefront
 
-The app in this folder is the Next.js implementation; the root `index.html` remains a static preview. Configure Vercel's project Root Directory as `web`.
+The Next.js application lives in `web/`. The root `index.html` is an independent static preview. Configure Vercel's project Root Directory as `web`.
 
-## Stack and features
-- Next.js App Router, React, TypeScript, responsive burgundy/cream/gold styling.
-- Product catalogue, search, category filters, sorting, quick detail modal, wishlist, local persisted cart, made-to-stitch enquiry.
-- Supabase Auth and Postgres schema with row-level security.
+## Stack and implemented features
+- Next.js App Router, React 19, TypeScript and responsive burgundy, ivory and gold styling.
+- Product catalogue with search, category filters, sorting, quick view and SEO product detail pages.
+- Browser-persisted demo cart and wishlist, size and colour variants, made-to-stitch enquiry form.
+- Supabase email/password authentication, PostgreSQL schema and row-level security.
+- Server-side product administration and order management with administrator role checks.
 - Server-side Razorpay order creation and payment signature verification.
-- SEO metadata, product JSON-LD, robots and sitemap.
+- Product structured data, keyword-focused metadata, robots and sitemap routes.
 
-## Required setup before production
-1. Create a Supabase project and run `supabase/schema.sql` in SQL Editor.
-2. Add environment variables from `.env.example` to Vercel (after separately approving hosting access).
-3. Verify your own Supabase account, then manually assign its profile `role='admin'` using the SQL note at the end of the schema.
-4. Set Supabase Auth Site URL and allowed redirect URLs to the chosen production domain.
-5. Configure Razorpay TEST keys first; test success, failure and verification before switching to live keys.
-6. Replace example product prices, stock, and illustrative product imagery with actual approved inventory before taking orders.
-7. Set `NEXT_PUBLIC_SITE_URL` to the production URL and verify canonical URLs, checkout and policy pages.
+## Setup still required before production
+1. Create a Supabase project and run `web/supabase/schema.sql` in its SQL Editor.
+2. Create a verified owner account, then use the SQL note at the end of the schema to assign that account `role='admin'`.
+3. Add the variables from `.env.example` to Vercel after you approve Vercel access and link the project. Never commit real values.
+4. Set Supabase Auth Site URL and allowed redirect URLs to the final domain.
+5. Configure Razorpay TEST keys first; test successful payments, failed payments, and verification before using live keys.
+6. Replace all example products, prices, stock quantities and generated placeholder photos with actual approved inventory.
+7. Finalise and legally review store policies, delivery/returns rules and customer support details before taking orders.
 
-## Safety and status
-No real credentials are included. Account login, data-backed admin and payments remain disabled until service variables and schema are configured. Order creation requires the signed-in user; price and stock are fetched on the server, and payment signatures are verified server-side. Do not accept real orders from the sample catalogue. No hosting deploy was performed.
+## Current state
+The application source and backend foundations are in this repository. No hosting deployment has been made. Authentication, the live catalogue, admin operations and payment checkout remain inactive until Supabase and Razorpay are configured. The sample products are not confirmed inventory. Never accept real orders or payments against placeholder products.
