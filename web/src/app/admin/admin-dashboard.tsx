@@ -2,6 +2,7 @@
 import Link from "next/link";
 import {useCallback,useEffect,useState} from "react";
 import {demoProducts,formatINR} from "@/lib/products";
+import {createBrowserSupabase} from "@/lib/supabase-browser";
 
 type AdminProduct={id:string;slug:string;name:string;category:string;price:number|string;stock:number;image:string;active:boolean;created_at?:string};
 type AdminOrder={id:string;status:string;amount_paise:number;currency:string;created_at:string;items:unknown[];user_id:string};
@@ -16,6 +17,7 @@ export default function AdminDashboard(){
  const [form,setForm]=useState<FormState>(blankForm);
  const [loading,setLoading]=useState(true);
  const [saving,setSaving]=useState(false);
+ const [imageBusy,setImageBusy]=useState(false);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
  const [accessDenied,setAccessDenied]=useState(false);
@@ -31,6 +33,25 @@ export default function AdminDashboard(){
   finally{setLoading(false);}
  },[]);
  useEffect(()=>{void refresh();},[refresh]);
+ async function uploadProductImage(e:React.ChangeEvent<HTMLInputElement>){
+  const input=e.currentTarget,file=input.files?.[0];if(!file)return;
+  setError("");setNotice("");
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024){
+   setError("Choose a JPG, PNG or WebP image up to 5 MB.");input.value="";return;
+  }
+  setImageBusy(true);
+  try{
+   const client=createBrowserSupabase();
+   const extension=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";
+   const path="products/"+Date.now()+"-"+file.name.toLowerCase().replace(/[^a-z0-9.-]/g,"-").slice(-90)+"."+extension;
+   const {error}=await client.storage.from("product-images").upload(path,file,{cacheControl:"31536000",contentType:file.type,upsert:false});
+   if(error)throw error;
+   const {data}=client.storage.from("product-images").getPublicUrl(path);
+   setForm(v=>({...v,image:data.publicUrl}));
+   setNotice("Image uploaded. Its public URL has been added to the product form.");
+  }catch(err){setError(err instanceof Error?err.message:"Image upload failed. Check Supabase storage and administrator access.");}
+  finally{setImageBusy(false);input.value="";}
+ }
  async function createProduct(e:React.FormEvent<HTMLFormElement>){
   e.preventDefault();setSaving(true);setError("");setNotice("");
   try{
@@ -67,7 +88,7 @@ export default function AdminDashboard(){
      <div className="form-field"><label htmlFor="p-price">Price (INR)</label><input id="p-price" type="number" min="1" step="1" required value={form.price} onChange={e=>setForm(v=>({...v,price:e.target.value}))}/></div>
      <div className="form-field"><label htmlFor="p-stock">Available stock</label><input id="p-stock" type="number" min="0" step="1" required value={form.stock} onChange={e=>setForm(v=>({...v,stock:e.target.value}))}/></div>
      <div className="form-field"><label htmlFor="p-fabric">Fabric</label><input id="p-fabric" maxLength={120} value={form.fabric} onChange={e=>setForm(v=>({...v,fabric:e.target.value}))}/></div>
-     <div className="form-field"><label htmlFor="p-image">Image URL (HTTPS)</label><input id="p-image" type="url" required value={form.image} onChange={e=>setForm(v=>({...v,image:e.target.value}))}/></div>
+     <div className="form-field"><label htmlFor="p-image">Product image URL (HTTPS)</label><input id="p-image" type="url" required value={form.image} onChange={e=>setForm(v=>({...v,image:e.target.value}))}/><label htmlFor="p-image-file">Or upload a product photo</label><input id="p-image-file" type="file" accept="image/jpeg,image/png,image/webp" disabled={imageBusy} onChange={uploadProductImage}/><small className="muted-note">{imageBusy?"Uploading image...":"JPG, PNG or WebP. Maximum 5 MB. Requires the Supabase product-images bucket."}</small></div>
      <div className="form-field"><label htmlFor="p-colors">Colours (comma separated)</label><input id="p-colors" value={form.colors} onChange={e=>setForm(v=>({...v,colors:e.target.value}))}/></div>
      <div className="form-field"><label htmlFor="p-sizes">Sizes (comma separated, optional)</label><input id="p-sizes" value={form.sizes} onChange={e=>setForm(v=>({...v,sizes:e.target.value}))}/></div>
      <div className="form-field"><label htmlFor="p-description">Description</label><textarea id="p-description" rows={4} maxLength={2000} value={form.description} onChange={e=>setForm(v=>({...v,description:e.target.value}))}/></div>
