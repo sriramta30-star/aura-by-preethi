@@ -2,9 +2,9 @@ import type {Metadata,Viewport} from "next";
 import Link from "next/link";
 import {StoreProvider} from "@/components/store-provider";
 import "./globals.css";
-const site=process.env.NEXT_PUBLIC_SITE_URL||"https://example.invalid";
+const site=process.env.NEXT_PUBLIC_SITE_URL;
 export const metadata:Metadata={
- metadataBase:new URL(site),
+ metadataBase:site?new URL(site):undefined,
  title:{default:"Aura by Preethi | Sarees, Designer Blouses & Custom Stitching",template:"%s | Aura by Preethi"},
  description:"Shop elegant sarees, designer blouses and custom blouse stitching at Aura by Preethi. Discover timeless Indian ethnic wear and festive styles.",
  keywords:["sarees online India","designer sarees","silk sarees online","organza sarees","ready-made blouses","designer blouses online","blouse stitching","custom blouse design","Indian ethnic wear","festive sarees","Aura by Preethi"],
