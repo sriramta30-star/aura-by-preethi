@@ -8,7 +8,7 @@ export const metadata:Metadata={
  title:{default:"Aura by Preethi | Sarees, Designer Blouses & Custom Stitching",template:"%s | Aura by Preethi"},
  description:"Shop elegant sarees, designer blouses and custom blouse stitching at Aura by Preethi. Discover timeless Indian ethnic wear and festive styles.",
  keywords:["sarees online India","designer sarees","silk sarees online","organza sarees","ready-made blouses","designer blouses online","blouse stitching","custom blouse design","Indian ethnic wear","festive sarees","Aura by Preethi"],
- openGraph:{type:"website",siteName:"Aura by Preethi",title:"Aura by Preethi | Curated specially for you",description:"Discover elegant sarees, ready-made designer blouses and made-to-stitch styles.",images:[{url:"/aura-logo.svg",alt:"Aura by Preethi logo"}]},
+ openGraph:{type:"website",siteName:"Aura by Preethi",title:"Aura by Preethi | Curated specially for you",description:"Discover elegant sarees, ready-made designer blouses and made-to-stitch styles.",images:[{url:"/aura-user-logo.webp",alt:"Aura by Preethi logo"}]},
  robots:{index:true,follow:true}
 };
 export const viewport:Viewport={themeColor:"#741b32",width:"device-width",initialScale:1};
