@@ -5,7 +5,7 @@ import {useMemo,useState} from "react";
 import {formatINR,type Product} from "@/lib/products";
 import {useStore} from "@/components/store-provider";
 
-declare global { interface Window { Razorpay?: new (options:Record<string,unknown>)=>{open:()=>void}; } }
+declare global { interface Window { Razorpay?: new (options:Record<string,unknown>)=>{open:()=>void;on?:(event:string,callback:(response:{error?:{description?:string}})=>void)=>void}; } }
 type Address={name:string;email:string;phone:string;line1:string;city:string;state:string;pincode:string};
 export default function CartPage(){
  const {cart,loaded,remove,quantity,clear,products}=useStore();
@@ -20,11 +20,12 @@ export default function CartPage(){
    const response=await fetch("/api/checkout",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({items:lines.map(x=>({productId:x.line.productId,quantity:x.line.quantity,size:x.line.size,color:x.line.color})),shippingAddress:address})});
    const payload=await response.json();if(!response.ok)throw new Error(payload.error||"Checkout is not configured yet.");
    if(!window.Razorpay)throw new Error("Secure checkout failed to load. Please try again.");
-   const widget=new window.Razorpay({key:payload.keyId,amount:payload.amount,currency:payload.currency,name:"Aura by Preethi",description:"Fashion order",order_id:payload.razorpayOrderId,prefill:{name:address.name,email:address.email,contact:address.phone},theme:{color:"#741b32"},handler:async(result:Record<string,string>)=>{
+   const widget=new window.Razorpay({key:payload.keyId,amount:payload.amount,currency:payload.currency,name:"Aura by Preethi",description:"Fashion order",order_id:payload.razorpayOrderId,prefill:{name:address.name,email:address.email,contact:address.phone},theme:{color:"#741b32"},modal:{ondismiss:()=>setMessage("Payment window closed. Your order is not confirmed unless a successful payment is verified.")},handler:async(result:Record<string,string>)=>{
     const verification=await fetch("/api/payments/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(result)});const verified=await verification.json();
     if(!verification.ok){setMessage(verified.error||"Payment verification failed. Please contact support before retrying.");return;}
     setMessage("Payment verified successfully. Order reference: "+verified.orderId);clear();
    }});
+   widget.on?.("payment.failed",failure=>setMessage(failure.error?.description||"Payment was not completed. You can review your bag and try again."));
    widget.open();
   }catch(error){setMessage(error instanceof Error?error.message:"Checkout could not start.");}
   finally{setBusy(false);}
