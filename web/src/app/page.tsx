@@ -8,7 +8,7 @@ const cats=["All styles","Sarees","Ready-made Blouses","Made-to-stitch"] as cons
 type Cat=typeof cats[number];
 
 function ProductCard({product,onQuick}:{product:Product;onQuick:(p:Product)=>void}){
- const {add,wishlist,toggleWishlist}=useStore();
+ const {wishlist,toggleWishlist}=useStore();
  const saved=wishlist.includes(product.id);
  return <article className="product-card reveal">
   <div className="product-image-wrap"><button className="image-link" onClick={()=>onQuick(product)} aria-label={`View ${product.name}`}><img src={product.image} alt={`${product.name}, ${product.category.toLowerCase()} by Aura by Preethi`} loading="lazy"/></button>
@@ -33,7 +33,7 @@ function QuickView({product,onClose}:{product:Product;onClose:()=>void}){
   <section className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-title">
    <button className="modal-close" onClick={onClose} aria-label="Close quick view">×</button>
    <img className="quick-photo" src={product.image} alt={product.name}/>
-   <div className="quick-copy"><small className="micro">{product.category}</small><h2 id="quick-title">{product.name}</h2><div className="quick-price">{formatINR(product.price)}</div><p>{product.description}</p><p className="fabric"><b>Fabric:</b> {product.fabric}</p>
+   <div className="quick-copy"><small className="micro">{product.category}</small><h2 id="quick-title">{product.name}</h2><div className="quick-price">{formatINR(product.price)}</div><p>{product.description}</p><p className="fabric"><b>Fabric:</b> {product.fabric}</p><p className="muted-note">{product.stock<=0?"Currently unavailable":product.stock<5?`Only ${product.stock} left in this sample stock.`:"Available in the sample catalogue."}</p>
    {product.sizes?.length?<label className="field-label">Size<select value={size} onChange={e=>setSize(e.target.value)}><option value="">Choose size</option>{product.sizes.map(s=><option key={s}>{s}</option>)}</select></label>:null}
    <label className="field-label">Colour<select value={color} onChange={e=>setColor(e.target.value)}>{product.colors.map(c=><option key={c}>{c}</option>)}</select></label>
    <div className="quick-actions"><button className="primary" disabled={product.stock<=0} onClick={()=>{if(product.stock<=0){setMsg("This item is currently unavailable.");return}if(product.sizes?.length&&!size){setMsg("Please choose a size.");return}add(product.id,size||undefined,color);setMsg("Added to your bag.");}}>{product.stock<=0?"Sold out":"Add to bag"}</button><button className="secondary" onClick={()=>toggleWishlist(product.id)}>{wishlist.includes(product.id)?"♥ Saved":"♡ Wishlist"}</button></div>
