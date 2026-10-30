@@ -144,3 +144,17 @@ on conflict(id) do nothing;
 
 -- Only after creating and verifying the store owner's Supabase account, promote its profile:
 -- update public.profiles set role='admin' where email='your-verified-admin-email@example.com';
+
+
+-- SECURITY: helper RPCs are SECURITY DEFINER and must never be callable by storefront users.
+-- Only trusted server routes using the Supabase service-role key may reserve/release stock,
+-- verify payments, or cancel pending orders.
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+revoke all on function public.reserve_aura_stock(jsonb) from public, anon, authenticated;
+revoke all on function public.release_aura_stock(jsonb) from public, anon, authenticated;
+revoke all on function public.complete_aura_order(text,text) from public, anon, authenticated;
+revoke all on function public.cancel_aura_order(uuid) from public, anon, authenticated;
+grant execute on function public.reserve_aura_stock(jsonb) to service_role;
+grant execute on function public.release_aura_stock(jsonb) to service_role;
+grant execute on function public.complete_aura_order(text,text) to service_role;
+grant execute on function public.cancel_aura_order(uuid) to service_role;
