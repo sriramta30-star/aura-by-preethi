@@ -157,3 +157,55 @@ grant execute on function public.reserve_aura_stock(jsonb) to service_role;
 grant execute on function public.release_aura_stock(jsonb) to service_role;
 grant execute on function public.complete_aura_order(text,text) to service_role;
 grant execute on function public.cancel_aura_order(uuid) to service_role;
+
+
+-- Product image storage: public reads, verified store administrators manage uploads.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values('product-images','product-images',true,5242880,array['image/jpeg','image/png','image/webp'])
+on conflict(id) do update set public=true,file_size_limit=5242880,allowed_mime_types=array['image/jpeg','image/png','image/webp'];
+
+drop policy if exists "public reads Aura product images" on storage.objects;
+create policy "public reads Aura product images" on storage.objects for select
+to anon,authenticated using(bucket_id='product-images');
+
+drop policy if exists "Aura admins upload product images" on storage.objects;
+create policy "Aura admins upload product images" on storage.objects for insert
+to authenticated with check(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+drop policy if exists "Aura admins update product images" on storage.objects;
+create policy "Aura admins update product images" on storage.objects for update
+to authenticated using(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+)) with check(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+drop policy if exists "Aura admins delete product images" on storage.objects;
+create policy "Aura admins delete product images" on storage.objects for delete
+to authenticated using(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+-- Release inventory for unpaid orders abandoned for 30 minutes.
+-- Schedule this function using Supabase pg_cron during backend setup (see README).
+create or replace function public.expire_aura_pending_orders()
+returns integer language plpgsql security definer set search_path=public as $$
+declare v_order public.orders%rowtype; v_count integer:=0;
+begin
+ for v_order in
+  select * from public.orders
+  where status='pending' and created_at < now()-interval '30 minutes'
+  order by created_at
+  for update skip locked
+ loop
+  perform public.release_aura_stock(v_order.items);
+  update public.orders set status='cancelled',updated_at=now()
+   where id=v_order.id and status='pending';
+  v_count:=v_count+1;
+ end loop;
+ return v_count;
+end;$$;
+revoke all on function public.expire_aura_pending_orders() from public,anon,authenticated;
+grant execute on function public.expire_aura_pending_orders() to service_role;
