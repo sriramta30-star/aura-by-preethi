@@ -1,5 +1,5 @@
 import {demoProducts,type Product} from "@/lib/products";
-import {createServerSupabase} from "@/lib/supabase";
+import {createServerSupabase} from "@/lib/supabase-server";
 
 export async function getProductBySlug(slug:string):Promise<Product|null>{
  const preview=demoProducts.find(item=>item.slug===slug)||null;
