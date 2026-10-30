@@ -1,0 +1,36 @@
+name: Aura Next.js build check
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "web/**"
+      - ".github/workflows/nextjs-check.yml"
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/nextjs-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-package-lock --no-audit --no-fund
+      - name: Check production build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://example.com
+        run: npm run build
