@@ -1,6 +1,6 @@
 import {createHmac,timingSafeEqual} from "node:crypto";
 import {NextResponse} from "next/server";
-import {createServerSupabase} from "@/lib/supabase";
+import {createServerSupabase} from "@/lib/supabase-server";
 import {createClient as createSupabaseClient} from "@supabase/supabase-js";
 export const runtime="nodejs";
 export async function POST(request:Request){

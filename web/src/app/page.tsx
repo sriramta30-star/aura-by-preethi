@@ -8,7 +8,7 @@ const cats=["All styles","Sarees","Ready-made Blouses","Made-to-stitch"] as cons
 type Cat=typeof cats[number];
 
 function ProductCard({product,onQuick}:{product:Product;onQuick:(p:Product)=>void}){
- const {add,wishlist,toggleWishlist}=useStore();
+ const {wishlist,toggleWishlist}=useStore();
  const saved=wishlist.includes(product.id);
  return <article className="product-card reveal">
   <div className="product-image-wrap"><button className="image-link" onClick={()=>onQuick(product)} aria-label={`View ${product.name}`}><img src={product.image} alt={`${product.name}, ${product.category.toLowerCase()} by Aura by Preethi`} loading="lazy"/></button>
@@ -18,7 +18,7 @@ function ProductCard({product,onQuick}:{product:Product;onQuick:(p:Product)=>voi
   <div className="product-body"><small>{product.category}</small><h3><button onClick={()=>onQuick(product)}>{product.name}</button></h3>
    <div className="price-row"><strong>{formatINR(product.price)}</strong>{product.compareAt&&<del>{formatINR(product.compareAt)}</del>}</div>
    <div className="swatches">{product.colors.slice(0,4).map((color,i)=><span title={color} aria-label={color} key={color} className={`swatch swatch-${i}`}/>)}</div>
-   <button className="add-button" onClick={()=>add(product.id)} type="button">Add to bag <span>＋</span></button>
+   <button className="add-button" onClick={()=>onQuick(product)} type="button" disabled={product.stock<=0}>{product.stock<=0?"Sold out":"Choose options"} <span>＋</span></button>
   </div>
  </article>;
 }
@@ -33,10 +33,10 @@ function QuickView({product,onClose}:{product:Product;onClose:()=>void}){
   <section className="quick-modal" role="dialog" aria-modal="true" aria-labelledby="quick-title">
    <button className="modal-close" onClick={onClose} aria-label="Close quick view">×</button>
    <img className="quick-photo" src={product.image} alt={product.name}/>
-   <div className="quick-copy"><small className="micro">{product.category}</small><h2 id="quick-title">{product.name}</h2><div className="quick-price">{formatINR(product.price)}</div><p>{product.description}</p><p className="fabric"><b>Fabric:</b> {product.fabric}</p>
+   <div className="quick-copy"><small className="micro">{product.category}</small><h2 id="quick-title">{product.name}</h2><div className="quick-price">{formatINR(product.price)}</div><p>{product.description}</p><p className="fabric"><b>Fabric:</b> {product.fabric}</p><p className="muted-note">{product.stock<=0?"Currently unavailable":product.stock<5?`Only ${product.stock} left in this sample stock.`:"Available in the sample catalogue."}</p>
    {product.sizes?.length?<label className="field-label">Size<select value={size} onChange={e=>setSize(e.target.value)}><option value="">Choose size</option>{product.sizes.map(s=><option key={s}>{s}</option>)}</select></label>:null}
    <label className="field-label">Colour<select value={color} onChange={e=>setColor(e.target.value)}>{product.colors.map(c=><option key={c}>{c}</option>)}</select></label>
-   <div className="quick-actions"><button className="primary" onClick={()=>{if(product.sizes?.length&&!size){setMsg("Please choose a size.");return}add(product.id,size||undefined,color);setMsg("Added to your bag.");}}>Add to bag</button><button className="secondary" onClick={()=>toggleWishlist(product.id)}>{wishlist.includes(product.id)?"♥ Saved":"♡ Wishlist"}</button></div>
+   <div className="quick-actions"><button className="primary" disabled={product.stock<=0} onClick={()=>{if(product.stock<=0){setMsg("This item is currently unavailable.");return}if(product.sizes?.length&&!size){setMsg("Please choose a size.");return}add(product.id,size||undefined,color);setMsg("Added to your bag.");}}>{product.stock<=0?"Sold out":"Add to bag"}</button><button className="secondary" onClick={()=>toggleWishlist(product.id)}>{wishlist.includes(product.id)?"♥ Saved":"♡ Wishlist"}</button></div>
    {msg&&<p className="status-message" role="status">{msg}</p>}<Link className="text-link" href={`/products/${product.slug}`}>View full product details ↗</Link>
    </div>
   </section>

@@ -1,19 +1,8 @@
-import { createBrowserClient, createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import {createBrowserClient} from "@supabase/ssr";
 
-export function createBrowserSupabase() {
-  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if(!url||!key) throw new Error("Supabase is not configured. Add its URL and public anon key in your hosting settings.");
-  return createBrowserClient(url,key);
-}
-export async function createServerSupabase() {
-  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if(!url||!key) throw new Error("Supabase is not configured.");
-  const jar=await cookies();
-  return createServerClient(url,key,{cookies:{
-    getAll:()=>jar.getAll(),
-    setAll(values){try{values.forEach(({name,value,options})=>jar.set(name,value,options));}catch{/* Server components cannot update cookies. */}}
-  }});
+export function createBrowserSupabase(){
+ const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+ const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ if(!url||!key)throw new Error("Supabase is not configured. Add its URL and public anon key in your hosting settings.");
+ return createBrowserClient(url,key);
 }

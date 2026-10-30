@@ -1,5 +1,5 @@
 import {demoProducts,type Product} from "@/lib/products";
-import {createServerSupabase} from "@/lib/supabase";
+import {createServerSupabase} from "@/lib/supabase-server";
 
 export async function getProductBySlug(slug:string):Promise<Product|null>{
  const preview=demoProducts.find(item=>item.slug===slug)||null;
@@ -11,7 +11,7 @@ export async function getProductBySlug(slug:string):Promise<Product|null>{
   const {data,error}=await db.from("products")
    .select("id,slug,name,category,price,compare_at,description,fabric,colors,sizes,stock,image,badge")
    .eq("slug",slug).eq("active",true).maybeSingle();
-  if(error||!data)return preview;
+  if(error||!data)return null;
   return {
    id:data.id,slug:data.slug,name:data.name,
    category:data.category as Product["category"],

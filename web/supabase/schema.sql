@@ -132,15 +132,80 @@ grant execute on function public.complete_aura_order(text,text) to service_role;
 grant execute on function public.cancel_aura_order(uuid) to service_role;
 
 insert into public.products(id,slug,name,category,price,compare_at,description,fabric,colors,sizes,stock,image,badge,active) values
-('saree-tissue-001','tissue-silk-saree','Tissue Silk Saree','Sarees',2499,2999,'A rich tissue silk drape with a refined festive finish for celebrations and special evenings.','Tissue silk blend',array['Maroon','Rose','Gold'],array[]::text[],12,'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=85','Bestseller',true),
-('saree-organza-002','organza-saree','Organza Saree','Sarees',2899,null,'Airy organza with a graceful silhouette for receptions, gifting and festive gatherings.','Organza',array['Ivory','Blush','Wine'],array[]::text[],8,'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=85','New arrival',true),
-('saree-georgette-003','georgette-saree','Georgette Saree','Sarees',1999,null,'An easy-to-style drape with soft movement for everyday elegance and occasions.','Georgette',array['Lavender','Rose','Wine'],array[]::text[],16,'https://images.unsplash.com/photo-1583391733956-6c78276477e8?auto=format&fit=crop&w=1000&q=85',null,true),
-('saree-chanderi-004','chanderi-saree','Chanderi Saree','Sarees',2699,null,'A light, luminous drape that pairs beautifully with a statement blouse.','Chanderi blend',array['Peach','Rose','Sand'],array[]::text[],7,'https://images.unsplash.com/photo-1610189012906-4c4c2d7d4d0a?auto=format&fit=crop&w=1000&q=85',null,true),
-('blouse-maroon-005','maroon-embroidered-blouse','Maroon Embroidered Blouse','Ready-made Blouses',1299,null,'A richly toned blouse with delicate embroidery to complement your favourite saree.','Silk blend',array['Maroon','Wine'],array['XS','S','M','L','XL'],10,'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=85','Popular',true),
-('blouse-beige-006','beige-silk-blouse','Beige Silk Blouse','Ready-made Blouses',1199,null,'A versatile silk-blend blouse in a soft neutral shade.','Silk blend',array['Beige','Champagne'],array['XS','S','M','L','XL'],9,'https://images.unsplash.com/photo-1583391733956-6c78276477e8?auto=format&fit=crop&w=1000&q=85',null,true),
-('blouse-green-007','green-v-neck-blouse','Green V-Neck Blouse','Ready-made Blouses',1399,null,'A jewel-green blouse with a flattering neckline and festive detailing.','Cotton silk blend',array['Emerald','Bottle green'],array['XS','S','M','L','XL'],6,'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1000&q=85',null,true),
-('stitch-custom-008','custom-blouse-stitching','Custom Blouse Stitching','Made-to-stitch',1599,null,'Starting price for made-to-stitch blouse services. Final pricing depends on design, fabric and measurements.','Customer-selected fabric',array['Custom'],array[]::text[],99,'https://images.unsplash.com/photo-1610189012906-4c4c2d7d4d0a?auto=format&fit=crop&w=1000&q=85','Made for you',true)
+('saree-tissue-001','tissue-silk-saree','Tissue Silk Saree','Sarees',2499,2999,'A rich tissue silk drape with a refined festive finish for celebrations and special evenings.','Tissue silk blend',array['Maroon','Rose','Gold'],array[]::text[],12,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-maroon.jpg','Bestseller',true),
+('saree-organza-002','organza-saree','Organza Saree','Sarees',2899,null,'Airy organza with a graceful silhouette for receptions, gifting and festive gatherings.','Organza',array['Ivory','Blush','Wine'],array[]::text[],8,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-ivory.jpg','New arrival',true),
+('saree-georgette-003','georgette-saree','Georgette Saree','Sarees',1999,null,'An easy-to-style drape with soft movement for everyday elegance and occasions.','Georgette',array['Lavender','Rose','Wine'],array[]::text[],16,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/blouse-maroon.jpg',null,true),
+('saree-chanderi-004','chanderi-saree','Chanderi Saree','Sarees',2699,null,'A light, luminous drape that pairs beautifully with a statement blouse.','Chanderi blend',array['Peach','Rose','Sand'],array[]::text[],7,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-ivory.jpg',null,true),
+('blouse-maroon-005','maroon-embroidered-blouse','Maroon Embroidered Blouse','Ready-made Blouses',1299,null,'A richly toned blouse with delicate embroidery to complement your favourite saree.','Silk blend',array['Maroon','Wine'],array['XS','S','M','L','XL'],10,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-ivory.jpg','Popular',true),
+('blouse-beige-006','beige-silk-blouse','Beige Silk Blouse','Ready-made Blouses',1199,null,'A versatile silk-blend blouse in a soft neutral shade.','Silk blend',array['Beige','Champagne'],array['XS','S','M','L','XL'],9,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/blouse-maroon.jpg',null,true),
+('blouse-green-007','green-v-neck-blouse','Green V-Neck Blouse','Ready-made Blouses',1399,null,'A jewel-green blouse with a flattering neckline and festive detailing.','Cotton silk blend',array['Emerald','Bottle green'],array['XS','S','M','L','XL'],6,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-maroon.jpg',null,true),
+('stitch-custom-008','custom-blouse-stitching','Custom Blouse Stitching','Made-to-stitch',1599,null,'Starting price for made-to-stitch blouse services. Final pricing depends on design, fabric and measurements.','Customer-selected fabric',array['Custom'],array[]::text[],99,'https://raw.githubusercontent.com/sriramta30-star/aura-by-preethi/main/web/public/fashion/saree-ivory.jpg','Made for you',true)
 on conflict(id) do nothing;
 
 -- Only after creating and verifying the store owner's Supabase account, promote its profile:
 -- update public.profiles set role='admin' where email='your-verified-admin-email@example.com';
+
+
+-- SECURITY: helper RPCs are SECURITY DEFINER and must never be callable by storefront users.
+-- Only trusted server routes using the Supabase service-role key may reserve/release stock,
+-- verify payments, or cancel pending orders.
+revoke all on function public.reserve_aura_stock(jsonb) from public, anon, authenticated;
+revoke all on function public.release_aura_stock(jsonb) from public, anon, authenticated;
+revoke all on function public.complete_aura_order(text,text) from public, anon, authenticated;
+revoke all on function public.cancel_aura_order(uuid) from public, anon, authenticated;
+grant execute on function public.reserve_aura_stock(jsonb) to service_role;
+grant execute on function public.release_aura_stock(jsonb) to service_role;
+grant execute on function public.complete_aura_order(text,text) to service_role;
+grant execute on function public.cancel_aura_order(uuid) to service_role;
+
+
+-- Product image storage: public reads, verified store administrators manage uploads.
+insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
+values('product-images','product-images',true,5242880,array['image/jpeg','image/png','image/webp'])
+on conflict(id) do update set public=true,file_size_limit=5242880,allowed_mime_types=array['image/jpeg','image/png','image/webp'];
+
+drop policy if exists "public reads Aura product images" on storage.objects;
+create policy "public reads Aura product images" on storage.objects for select
+to anon,authenticated using(bucket_id='product-images');
+
+drop policy if exists "Aura admins upload product images" on storage.objects;
+create policy "Aura admins upload product images" on storage.objects for insert
+to authenticated with check(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+drop policy if exists "Aura admins update product images" on storage.objects;
+create policy "Aura admins update product images" on storage.objects for update
+to authenticated using(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+)) with check(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+drop policy if exists "Aura admins delete product images" on storage.objects;
+create policy "Aura admins delete product images" on storage.objects for delete
+to authenticated using(bucket_id='product-images' and exists(
+ select 1 from public.profiles p where p.id=auth.uid() and p.role='admin'
+));
+
+-- Release inventory for unpaid orders abandoned for 30 minutes.
+-- Schedule this function using Supabase pg_cron during backend setup (see README).
+create or replace function public.expire_aura_pending_orders()
+returns integer language plpgsql security definer set search_path=public as $$
+declare v_order public.orders%rowtype; v_count integer:=0;
+begin
+ for v_order in
+  select * from public.orders
+  where status='pending' and created_at < now()-interval '30 minutes'
+  order by created_at
+  for update skip locked
+ loop
+  perform public.release_aura_stock(v_order.items);
+  update public.orders set status='cancelled',updated_at=now()
+   where id=v_order.id and status='pending';
+  v_count:=v_count+1;
+ end loop;
+ return v_count;
+end;$$;
+revoke all on function public.expire_aura_pending_orders() from public,anon,authenticated;
+grant execute on function public.expire_aura_pending_orders() to service_role;
