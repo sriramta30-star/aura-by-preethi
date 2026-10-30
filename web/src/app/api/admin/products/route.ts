@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {createServerSupabase} from "@/lib/supabase";
+import {createServerSupabase} from "@/lib/supabase-server";
 import {createClient} from "@supabase/supabase-js";
 export const runtime="nodejs";
 async function adminDb(){
